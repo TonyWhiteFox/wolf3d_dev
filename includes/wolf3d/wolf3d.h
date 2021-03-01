@@ -10,4 +10,10 @@
 #  include <CL/cl.h>
 # endif
 
+typedef struct			s_wolf
+{
+	int					*cl;
+
+}						t_wolf;
+
 #endif
