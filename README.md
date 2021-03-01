@@ -1,1 +1,1 @@
-# corewar
+# wolf_3d
