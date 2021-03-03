@@ -4,7 +4,7 @@ void				init_mlx(t_mlx *mlx, t_wolf *main_wolf)
 {
 	mlx->mlx_ptr = mlx_init();
 	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, main_wolf->win_size_x,
-			main_wolf->win_size_y, main_wolf->map_name);
+			main_wolf->win_size_y, "test");//main_wolf->map_name);
 	mlx->img_ptr = mlx_new_image(mlx->mlx_ptr, main_wolf->win_size_x,
 			main_wolf->win_size_y);
 	mlx->img_adr = mlx_get_data_addr(mlx->img_ptr, &mlx->bpp, &mlx->stride,
@@ -88,6 +88,13 @@ int			key_press(int key, t_wolf *main_wolf)
 int			run_game(t_wolf *main_wolf)
 {
 	main_wolf += 0;
+	//Отрисовка карты или с новыми параметрами или со старыми пока стоим
+	int 	coord_x_on_array;
+	int 	coord_y_on_array;
+
+	coord_x_on_array = main_wolf->player->position_x / 100;
+	coord_y_on_array = main_wolf->player->position_y / 100;
+
 		// while (SDL_PollEvent(&sdl.e) != 0)
 		// {
 		// 	if (sdl.e.type == SDL_QUIT)
@@ -174,12 +181,13 @@ void				init_magick_number_first_block(t_wolf *main_wolf)
 {
 	main_wolf->win_size_x = 1600;
 	main_wolf->win_size_y = 1024;
+	main_wolf->space_coefficient = 100;
 }
 
 void				init_player_start_params(t_player *player)
 {
-	player->position_x = 100;
-	player->position_y = 100;
+	player->position_x = 150;
+	player->position_y = 150;
 	player->position_z = 1;
 	player->stay_size = 5;
 	player->sit_size = 3;
@@ -187,10 +195,33 @@ void				init_player_start_params(t_player *player)
 	player->standart_speed = 3;
 	player->sit_speed = 1;
 	player->run_speed = 5;
-	player->angle_around = 0;
+	player->angle_around = 90;
 	player->angle_horizon = 90;
 	player->angle_horizon_low_limit = 20;
 	player->angle_horizon_hight_limit = 170;
+	player->viewing_angle = 75;
+}
+
+t_objectlist		*create_object_blanck(int wals, int constants)
+{
+	t_objectlist	*new;
+	int				i;
+
+	if (!(new = (t_objectlist *)malloc(sizeof(t_objectlist))))
+		get_error_with_text("Memory error, try again latter", false);
+	if (wals > 0)
+		if (!(new->wall_coords = (int **)malloc(sizeof(int *))))
+			get_error_with_text("Memory error, try again latter", false);
+	i = 0;
+	while (i < wals)
+	{
+		if (!(new->wall_coords[i] = (int *)malloc(sizeof(int) * constants)))
+			get_error_with_text("Memory error, try again latter", false);
+		ft_bzero(new->wall_coords[i], sizeof(int) * constants);
+		i++;
+	}
+	new->next = NULL;
+	return (new);
 }
 
 void				init_structure_wolf(t_wolf *main_wolf)
@@ -202,6 +233,7 @@ void				init_structure_wolf(t_wolf *main_wolf)
 	init_player_start_params(main_wolf->player);
 	init_magick_number_first_block(main_wolf);
 	init_mlx(main_wolf->mlx, main_wolf);
+	main_wolf->object = NULL; 
 	main_wolf += 0;
 }
 
@@ -225,9 +257,102 @@ void				process_parameters(int ac, char **av, t_wolf *main_wolf)
 	init_structure_wolf(main_wolf);
 }
 
-void				test_init_map(t_wolf *wolf_main)
+void				create_objects_lists(t_wolf *main_wolf)
 {
-	wolf_main += 0;
+	int				i;
+	int				j;
+	t_objectlist	*walker;
+
+	int k = 0;
+	if (main_wolf->object)
+	{
+		walker = main_wolf->object;
+		while (walker->next)
+			walker = walker->next;
+	}
+	i = 0;
+	while (i < 10)
+	{
+		j = 0;
+		while (j < 10)
+		{
+			if (main_wolf->test_map[i][j] == 1)
+			{
+				// if (main_wolf->object)
+				// {
+				// 	walker->next = create_object_blanck(4, 2);
+				// 	walker = walker->next;
+				// }
+				// else
+				// {
+				// 	main_wolf->object = create_object_blanck(4, 2);
+				// 	walker = main_wolf->object;
+				// }
+				
+				//заполнить
+				k++;
+			}
+			j++;
+		}
+		i++;
+	}
+	ft_printf("\n&&%i\n", k);
+}
+
+void				test_init_map(t_wolf *main_wolf)
+{// test
+	int				i;
+
+	if (!(main_wolf->test_map = (int **)malloc(sizeof(int *) * 10)))
+		get_error_with_text("Memory error, try again latter", false);
+	i = 0;
+	while (i < 10)
+	{
+		if (!(main_wolf->test_map[i] = (int *)malloc(sizeof(int) * 10)))
+			get_error_with_text("Memory error, try again latter", false);
+		ft_bzero(main_wolf->test_map[i], sizeof(int) * 10);
+		ft_printf("%i ", i);
+		i++;
+	}
+	main_wolf->test_map[0][0] = 1;
+	main_wolf->test_map[0][1] = 1;
+	main_wolf->test_map[0][2] = 1;
+	main_wolf->test_map[0][3] = 1;
+	main_wolf->test_map[0][4] = 1;
+	main_wolf->test_map[0][5] = 1;
+	main_wolf->test_map[0][6] = 1;
+	main_wolf->test_map[0][7] = 1;
+	main_wolf->test_map[0][8] = 1;
+	main_wolf->test_map[0][9] = 1;
+	main_wolf->test_map[9][0] = 1;
+	main_wolf->test_map[9][1] = 1;
+	main_wolf->test_map[9][2] = 1;
+	main_wolf->test_map[9][3] = 1;
+	main_wolf->test_map[9][4] = 1;
+	main_wolf->test_map[9][5] = 1;
+	main_wolf->test_map[9][6] = 1;
+	main_wolf->test_map[9][7] = 1;
+	main_wolf->test_map[9][8] = 1;
+	main_wolf->test_map[9][9] = 1;
+	main_wolf->test_map[1][0] = 1;
+	main_wolf->test_map[2][0] = 1;
+	main_wolf->test_map[3][0] = 1;
+	main_wolf->test_map[4][0] = 1;
+	main_wolf->test_map[5][0] = 1;
+	main_wolf->test_map[6][0] = 1;
+	main_wolf->test_map[7][0] = 1;
+	main_wolf->test_map[8][0] = 1;
+	main_wolf->test_map[1][9] = 1;
+	main_wolf->test_map[2][9] = 1;
+	main_wolf->test_map[3][9] = 1;
+	main_wolf->test_map[4][9] = 1;
+	main_wolf->test_map[5][9] = 1;
+	main_wolf->test_map[6][9] = 1;
+	main_wolf->test_map[7][9] = 1;
+	main_wolf->test_map[8][9] = 1;
+	main_wolf->test_map[7][7] = 1;
+	main_wolf->test_map[5][5] = 1;
+	create_objects_lists(main_wolf);
 }
 
 int					main(int ac, char **av)
@@ -238,6 +363,7 @@ int					main(int ac, char **av)
 	if (!(main_wolf = (t_wolf *)malloc(sizeof(t_wolf))))
 		get_error_with_text("Memory error, try again latter", false);
 	process_parameters(ac, av, main_wolf);
+			test_init_map(main_wolf); //test
 	create_hooks_ans_start(main_wolf);
 	return (0);
 }

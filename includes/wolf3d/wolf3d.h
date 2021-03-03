@@ -37,19 +37,29 @@ typedef struct			s_player
 	int					angle_horizon;
 	int					angle_horizon_low_limit;
 	int					angle_horizon_hight_limit;
+	int					viewing_angle;
 }						t_player;
 
+typedef struct			s_objectlist
+{
+	int					**wall_coords; //первый уровень - номер стены, [i][0] - точка 1 по Х, [i][1] - точка 2 по Х, [i][2] - высота тесктыры и т.д. опционально 
+	struct s_objectlist	*next;
+}						t_objectlist;
 
 typedef struct			s_wolf
 {
 	int					*cl;
 	char				*map_name;
+	int					**test_map;
+	int					space_coefficient;
 	t_mlx				*mlx;
 	t_player			*player;
+	t_objectlist		*object;
 	int					win_size_x;
 	int					win_size_y;
 }						t_wolf;
 
 void					get_error_with_text(char *message, bool memory_alowed);
+
 
 #endif
